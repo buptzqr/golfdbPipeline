@@ -8,17 +8,18 @@ from torchvision import transforms
 import os
 from torch.utils.tensorboard import SummaryWriter
 from myeval import myeval
+from data.config import cfg
 
 
 if __name__ == '__main__':
 
     # training configuration
-    split = 4
-    iterations = 2500
-    it_save = 100  # save model every 100 iterations
-    n_cpu = 6
-    seq_length = 64
-    bs = 20  # batch size
+    split = cfg.SPLIT
+    iterations = cfg.ITERATIONS
+    it_save = cfg.IT_SAVE  # save model every 100 iterations
+    n_cpu = cfg.CPU_NUM
+    seq_length = cfg.SEQUENCE_LENGTH
+    bs = cfg.BATCH_SIZE  # batch size
     k = 10  # frozen layers
 
     model = EventDetector(pretrain=True,
@@ -42,11 +43,11 @@ if __name__ == '__main__':
     #                  myStd=[0.229, 0.224, 0.225],
     #                  train=True)
 
-    #用来训练光流部分
+    # 用来训练光流部分
     dataset = GolfDB_T(data_file='data/train_split_{}.pkl'.format(split),
-                        vid_dir='/home/zqr/codes/data/opticalFlowRes_160',
-                        seq_length=seq_length,
-                        train=True)
+                       vid_dir=cfg.OPT_RESIZE_FILE_PATH,
+                       seq_length=seq_length,
+                       train=True)
 
     data_loader = DataLoader(dataset,
                              batch_size=bs,
@@ -56,9 +57,11 @@ if __name__ == '__main__':
 
     # the 8 golf swing events are classes 0 through 7, no-event is class 8
     # the ratio of events to no-events is approximately 1:35 so weight classes accordingly:
-    weights = torch.FloatTensor([1/8, 1/8, 1/8, 1/8, 1/8, 1/8, 1/8, 1/8, 1/35]).cuda()
+    weights = torch.FloatTensor(
+        [1/8, 1/8, 1/8, 1/8, 1/8, 1/8, 1/8, 1/8, 1/35]).cuda()
     criterion = torch.nn.CrossEntropyLoss(weight=weights)
-    optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=0.001)
+    optimizer = torch.optim.Adam(
+        filter(lambda p: p.requires_grad, model.parameters()), lr=0.001)
 
     losses = AverageMeter()
 
@@ -80,19 +83,17 @@ if __name__ == '__main__':
             loss.backward()
             losses.update(loss.item(), images.size(0))
             optimizer.step()
-            print('Iteration: {}\tLoss: {loss.val:.4f} ({loss.avg:.4f})'.format(i, loss=losses))
+            print('Iteration: {}\tLoss: {loss.val:.4f} ({loss.avg:.4f})'.format(
+                i, loss=losses))
             i += 1
             if i % it_save == 0:
                 torch.save({'optimizer_state_dict': optimizer.state_dict(),
                             'model_state_dict': model.state_dict()}, 'models/swingnet_{}.pth.tar'.format(i))
-            if i==1000:
+            if i == 1000:
                 for p in optimizer.param_groups:
                     p['lr'] *= 0.1
-            if i==2000:
+            if i == 2000:
                 for p in optimizer.param_groups:
                     p['lr'] *= 0.1
             if i == iterations:
                 break
-
-
-

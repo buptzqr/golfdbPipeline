@@ -11,6 +11,7 @@ from torchvision import transforms
 def Normalize_T(sample):
     images, labels = sample['images'], sample['labels']
     images = np.asarray(images)
+    images = images.astype(np.float32)
     labels = np.asarray(labels)
     # print(images.shape)
     imgsMean = np.mean(images, axis=(1, 2))
@@ -63,8 +64,10 @@ class GolfDB_T(Dataset):
                     if self.transform:
                         opticalArray = self.transform(opticalArray)
                     images.append(opticalArray)
-                    if pos in events[1:-1]:
-                        labels.append(np.where(events[1:-1] == pos)[0][0])
+                    pos_adj = pos - 1
+
+                    if pos_adj in events[1:-1]:
+                        labels.append(np.where(events[1:-1] == pos_adj)[0][0])
                     else:
                         labels.append(8)
                     pos += 1
@@ -91,8 +94,9 @@ class GolfDB_T(Dataset):
                 if self.transform:
                     opticalArray = self.transform(opticalArray)
                 images.append(opticalArray)
-                if pos in events[1:-1]:
-                    labels.append(np.where(events[1:-1] == pos)[0][0])
+                pos_adj = pos - 1
+                if pos_adj in events[1:-1]:
+                    labels.append(np.where(events[1:-1] == pos_adj)[0][0])
                 else:
                     labels.append(8)
         sample = {'images': images, 'labels': np.asarray(labels)}
@@ -113,5 +117,6 @@ if __name__ == '__main__':
 
     for i, sample in enumerate(data_loader):
         images, labels = sample['images'], sample['labels']
+        print(labels)
         events = np.where(labels.squeeze() < 8)[0]
         print('{} events: {}'.format(len(events), events))

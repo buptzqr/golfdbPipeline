@@ -8,6 +8,7 @@ import torch.nn.functional as F
 import numpy as np
 from util import correct_preds
 import matplotlib.pyplot as plt
+from data.config import cfg
 
 # summary = [0, 0, 0, 0, 0, 0, 0, 0]  #统计各个关键帧检测出错的数目
 
@@ -18,7 +19,7 @@ def myeval(model, split, seq_length, n_cpu, disp, stream_choice=0):
     if stream_choice == 1:  # 默认使用光流分支
         # 评价非光流法
         dataset = GolfDB(data_file='/home/zqr/codes/GolfDB/data/val_split_{}.pkl'.format(split),
-                         vid_dir='/home/zqr/codes/GolfDB/data/videos_160/',
+                         vid_dir=cfg.VIDEO_160_PATH,
                          seq_length=seq_length,
                          transform=None,
                          myMean=[0.485, 0.456, 0.406],
@@ -27,7 +28,7 @@ def myeval(model, split, seq_length, n_cpu, disp, stream_choice=0):
 
     else:  # 评价光流法
         dataset = GolfDB_T(data_file='/home/zqr/codes/GolfDB/data/val_split_{}.pkl'.format(split),
-                           vid_dir='/home/zqr/codes/data/opticalFlowRes_160',
+                           vid_dir=cfg.OPT_RESIZE_FILE_PATH,
                            seq_length=seq_length,
                            train=False)
     data_loader = DataLoader(dataset,
@@ -88,9 +89,9 @@ def myeval(model, split, seq_length, n_cpu, disp, stream_choice=0):
 
 if __name__ == '__main__':
 
-    split = 1
-    seq_length = 64
-    n_cpu = 6
+    split = cfg.SPLIT
+    seq_length = cfg.SEQUENCE_LENGTH
+    n_cpu = cfg.CPU_NUM
 
     model = EventDetector(pretrain=True,
                           width_mult=1,
@@ -100,32 +101,32 @@ if __name__ == '__main__':
                           dropout=False)
     PCES = {}
     vNum = 0
-    for i in range(16, 17):
+    for i in range(1, 26):
         index = i*100
         print('swingnet_{}.pth.tar'.format(index))
-        save_dict = torch.load('swingnet_{}.pth.tar'.format(index))
+        save_dict = torch.load('./models/swingnet_{}.pth.tar'.format(index))
         model.load_state_dict(save_dict['model_state_dict'])
         model.cuda()
         model.eval()
-        PCE, vNum, _, _, _, _ = myeval(
-            model, split, seq_length, n_cpu, False, 1)
+        PCE, vNum, _, _, _ = myeval(
+            model, split, seq_length, n_cpu, False, 0)
         PCES[index] = PCE
 
     print('split:{}  Average PCE: {}'.format(split, PCES))
-    # print("video file num:{}".format(vNum))
+    print("video file num:{}".format(vNum))
     # print("summary:{}".format(summary))
 
-    # #绘图
-    # y_val = list(PCES.values())
-    # x_val = list(PCES.keys())
+    # 绘图
+    y_val = list(PCES.values())
+    x_val = list(PCES.keys())
 
-    # plt.plot(x_val, y_val, linewidth=5)
+    plt.plot(x_val, y_val, linewidth=5)
 
-    # #设置图表标题，并给坐标轴加上标签
-    # plt.title("val_precision", fontsize=24)
-    # plt.xlabel("iter per 100", fontsize=14)
-    # plt.ylabel("acc val", fontsize=14)
+    # 设置图表标题，并给坐标轴加上标签
+    plt.title("val_precision", fontsize=24)
+    plt.xlabel("iter per 100", fontsize=14)
+    plt.ylabel("acc val", fontsize=14)
 
-    # #设置刻度标记的大小
-    # plt.tick_params(axis='both', labelsize=14)
-    # plt.savefig("split{}".format(split))
+    # 设置刻度标记的大小
+    plt.tick_params(axis='both', labelsize=14)
+    plt.savefig("./image/split{}".format(split))
