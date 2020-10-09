@@ -168,7 +168,8 @@ class GolfDB_13(Dataset):
                             transImg = np.asarray(img)
                             if self.transform:
                                 transImg = self.transform(transImg)
-                            images.append(img)
+                            transImg = transImg.permute((1, 2, 0))
+                            images.append(transImg)
                             if pos in events_list[0:-1]:
                                 labels.append(
                                     np.where(events_list[0:-1] == pos)[0][0])
@@ -185,9 +186,6 @@ class GolfDB_13(Dataset):
                         _, img = cap.read()
                         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                         transImg = np.asarray(img)
-                        # eval也要做各种仿射变换
-                        if self.transform:
-                            transImg = self.transform(transImg)
                         images.append(transImg)
                         if pos in events_list[0:-1]:
                             labels.append(
@@ -213,7 +211,7 @@ if __name__ == '__main__':
                         json_dir=cfg.VAL_JSON_PATH,
                         dataloader_opt=cfg.DATAOPT,
                         seq_length=64,
-                        train=False)
+                        train=True)
 
     data_loader = DataLoader(dataset, batch_size=1,
                              shuffle=False, num_workers=6, drop_last=False)

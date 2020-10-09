@@ -68,7 +68,8 @@ class GolfDB(Dataset):
                     transImg = np.asarray(img)
                     if self.transform:
                         transImg = self.transform(transImg)
-                    images.append(img)
+                    transImg = transImg.permute((1, 2, 0))
+                    images.append(transImg)
                     if pos in events[1:-1]:
                         labels.append(np.where(events[1:-1] == pos)[0][0])
                     else:
@@ -124,7 +125,7 @@ if __name__ == '__main__':
                      myMean=myMean,
                      myStd=myStd)
 
-    data_loader = DataLoader(dataset, batch_size=20,
+    data_loader = DataLoader(dataset, batch_size=1,
                              shuffle=False, num_workers=6, drop_last=False)
 
     for i, sample in enumerate(data_loader):
