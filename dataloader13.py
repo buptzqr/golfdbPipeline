@@ -10,7 +10,7 @@ from torchvision import transforms
 from data.config import cfg
 
 
-def ToTensor(sample):
+def ToTensor_13(sample):
     """Convert ndarrays in sample to Tensors."""
     images, labels = sample['images'], sample['labels']
     # images= np.asarray(images)
@@ -28,7 +28,7 @@ def ToTensor(sample):
             'labels': torch.from_numpy(labels).long()}
 
 
-def Normalize(sample):
+def Normalize_13(sample):
     myMean = [0.485, 0.456, 0.406]
     myStd = [0.229, 0.224, 0.225]  # ImageNet mean and std (RGB)
 
@@ -39,7 +39,7 @@ def Normalize(sample):
     return {'images': images, 'labels': labels}
 
 
-def Normalize_T(sample):
+def Normalize_T_13(sample):
     images, labels = sample['images'], sample['labels']
     images = np.asarray(images)
     images = images.astype(np.float32)
@@ -146,7 +146,7 @@ class GolfDB_13(Dataset):
                         else:
                             labels.append(13)
                 sample = {'images': images, 'labels': np.asarray(labels)}
-                sample = Normalize_T(sample)
+                sample = Normalize_T_13(sample)
                 return sample
 
             if self.dataloader_opt == cfg.DATALOADER_OPT.RGB:
@@ -195,8 +195,8 @@ class GolfDB_13(Dataset):
                     cap.release()
 
                 sample = {'images': images, 'labels': np.asarray(labels)}
-                sample = ToTensor(sample)
-                sample = Normalize(sample)
+                sample = ToTensor_13(sample)
+                sample = Normalize_13(sample)
                 return sample
 
             if self.dataloader_opt == cfg.DATALOADER_OPT.KEYPOINTS:

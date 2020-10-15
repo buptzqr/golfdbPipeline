@@ -19,6 +19,7 @@ class Config:
     BATCH_SIZE = 20
     PKL_FILE_PATH = "./data/train_split_{}.pkl".format(SPLIT)
     OUR_PKL_FILE_PATH = "./data/golfDB.pkl"
+    FRAME_13_OPEN = True
 
     class DATALOADER_OPT(Enum):
         RGB = 0

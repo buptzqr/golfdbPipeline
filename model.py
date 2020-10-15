@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from MobileNetV2 import MobileNetV2
+from data.config import cfg
 
 
 class EventDetector(nn.Module):
@@ -23,9 +24,15 @@ class EventDetector(nn.Module):
                            self.lstm_hidden, self.lstm_layers,
                            batch_first=True, bidirectional=bidirectional)
         if self.bidirectional:
-            self.lin = nn.Linear(2*self.lstm_hidden, 9)
+            if cfg.FRAME_13_OPEN:
+                self.lin = nn.Linear(2*self.lstm_hidden, 14)
+            else:
+                self.lin = nn.Linear(2*self.lstm_hidden, 9)
         else:
-            self.lin = nn.Linear(self.lstm_hidden, 9)
+            if cfg.FRAME_13_OPEN:
+                self.lin = nn.Linear(2*self.lstm_hidden, 14)
+            else:
+                self.lin = nn.Linear(2*self.lstm_hidden, 9)
         if self.dropout:
             self.drop = nn.Dropout(0.5)
 
@@ -38,7 +45,7 @@ class EventDetector(nn.Module):
                     Variable(torch.zeros(self.lstm_layers, batch_size, self.lstm_hidden).cuda(), requires_grad=True))
 
     def forward(self, x, lengths=None):
-        batch_size, timesteps, C, H, W = x.size()    
+        batch_size, timesteps, C, H, W = x.size()
         self.hidden = self.init_hidden(batch_size)
 
         # CNN forward
@@ -52,9 +59,9 @@ class EventDetector(nn.Module):
         r_in = c_out.view(batch_size, timesteps, -1)
         r_out, states = self.rnn(r_in, self.hidden)
         out = self.lin(r_out)
-        out = out.view(batch_size*timesteps,9)
+        if cfg.FRAME_13_OPEN:
+            out = out.view(batch_size*timesteps, 14)
+        else:
+            out = out.view(batch_size*timesteps, 9)
 
         return out
-
-
-

@@ -4,6 +4,7 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from dataloader import GolfDB, ToTensor, Normalize
+from dataloader13 import GolfDB_13, ToTensor_13, Normalize_13, Normalize_T_13
 import torch.nn.functional as F
 import numpy as np
 from util import correct_preds
@@ -16,21 +17,28 @@ from data.config import cfg
 def myeval(model, split, seq_length, n_cpu, disp, stream_choice=0):
     # summaryFile = open("summary_opt_{}.txt".format(split),"w")
     videosNum = 0  # 统计验证集的视频数量
-    if stream_choice == 1:  # 默认使用光流分支
-        # 评价非光流法
-        dataset = GolfDB(data_file='/home/zqr/codes/GolfDB/data/val_split_{}.pkl'.format(split),
-                         vid_dir=cfg.VIDEO_160_PATH,
-                         seq_length=seq_length,
-                         transform=None,
-                         myMean=[0.485, 0.456, 0.406],
-                         myStd=[0.229, 0.224, 0.225],
-                         train=False)
+    if cfg.FRAME_13_OPEN:
+        dataset = GolfDB_13(data_file=cfg.OUR_PKL_FILE_PATH,
+                            json_dir=cfg.VAL_JSON_PATH,
+                            dataloader_opt=cfg.DATAOPT,
+                            seq_length=64,
+                            train=False)
+    else:
+        if stream_choice == 1:  # 默认使用光流分支
+            # 评价非光流法
+            dataset = GolfDB(data_file='/home/zqr/codes/GolfDB/data/val_split_{}.pkl'.format(split),
+                             vid_dir=cfg.VIDEO_160_PATH,
+                             seq_length=seq_length,
+                             transform=None,
+                             myMean=[0.485, 0.456, 0.406],
+                             myStd=[0.229, 0.224, 0.225],
+                             train=False)
 
-    else:  # 评价光流法
-        dataset = GolfDB_T(data_file='/home/zqr/codes/GolfDB/data/val_split_{}.pkl'.format(split),
-                           vid_dir=cfg.OPT_RESIZE_FILE_PATH,
-                           seq_length=seq_length,
-                           train=False)
+        else:  # 评价光流法
+            dataset = GolfDB_T(data_file='/home/zqr/codes/GolfDB/data/val_split_{}.pkl'.format(split),
+                               vid_dir=cfg.OPT_RESIZE_FILE_PATH,
+                               seq_length=seq_length,
+                               train=False)
     data_loader = DataLoader(dataset,
                              batch_size=1,
                              shuffle=False,
@@ -78,7 +86,7 @@ def myeval(model, split, seq_length, n_cpu, disp, stream_choice=0):
         # else:
         #     summaryFile.write('\n')
         if disp:
-            print(i, c)
+            # print(i, c)
             print(events)
             print(preds)
         correct.append(c)
@@ -101,7 +109,7 @@ if __name__ == '__main__':
                           dropout=False)
     PCES = {}
     vNum = 0
-    for i in range(1, 26):
+    for i in range(1, 6):
         index = i*100
         print('swingnet_{}.pth.tar'.format(index))
         save_dict = torch.load('./models/swingnet_{}.pth.tar'.format(index))
@@ -109,24 +117,24 @@ if __name__ == '__main__':
         model.cuda()
         model.eval()
         PCE, vNum, _, _, _ = myeval(
-            model, split, seq_length, n_cpu, False, 0)
+            model, split, seq_length, n_cpu, True, 0)
         PCES[index] = PCE
 
     print('split:{}  Average PCE: {}'.format(split, PCES))
     print("video file num:{}".format(vNum))
     # print("summary:{}".format(summary))
 
-    # 绘图
-    y_val = list(PCES.values())
-    x_val = list(PCES.keys())
+    # # 绘图
+    # y_val = list(PCES.values())
+    # x_val = list(PCES.keys())
 
-    plt.plot(x_val, y_val, linewidth=5)
+    # plt.plot(x_val, y_val, linewidth=5)
 
-    # 设置图表标题，并给坐标轴加上标签
-    plt.title("val_precision", fontsize=24)
-    plt.xlabel("iter per 100", fontsize=14)
-    plt.ylabel("acc val", fontsize=14)
+    # # 设置图表标题，并给坐标轴加上标签
+    # plt.title("val_precision", fontsize=24)
+    # plt.xlabel("iter per 100", fontsize=14)
+    # plt.ylabel("acc val", fontsize=14)
 
-    # 设置刻度标记的大小
-    plt.tick_params(axis='both', labelsize=14)
-    plt.savefig("./image/split{}".format(split))
+    # # 设置刻度标记的大小
+    # plt.tick_params(axis='both', labelsize=14)
+    # plt.savefig("./image/split{}".format(split))
