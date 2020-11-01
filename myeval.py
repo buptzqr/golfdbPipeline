@@ -87,7 +87,9 @@ def myeval(model, split, seq_length, n_cpu, disp, stream_choice=0):
         #     summaryFile.write('\n')
         if disp:
             # print(i, c)
+            print("ground truth:")
             print(events)
+            print("preds:")
             print(preds)
         correct.append(c)
     PCE = np.mean(correct)
@@ -119,22 +121,30 @@ if __name__ == '__main__':
         PCE, vNum, _, _, _ = myeval(
             model, split, seq_length, n_cpu, True, 0)
         PCES[index] = PCE
-
-    print('split:{}  Average PCE: {}'.format(split, PCES))
-    print("video file num:{}".format(vNum))
+    if cfg.FRAME_13_OPEN:
+        print("13 frames")
+        print('Average PCE: {}'.format(PCES))
+        print("video file num:{}".format(vNum))
+    else:
+        print("8 frames")
+        print('split:{}  Average PCE: {}'.format(split, PCES))
+        print("video file num:{}".format(vNum))
     # print("summary:{}".format(summary))
 
     # # 绘图
-    # y_val = list(PCES.values())
-    # x_val = list(PCES.keys())
+    y_val = list(PCES.values())
+    x_val = list(PCES.keys())
 
-    # plt.plot(x_val, y_val, linewidth=5)
+    plt.plot(x_val, y_val, linewidth=5)
 
-    # # 设置图表标题，并给坐标轴加上标签
-    # plt.title("val_precision", fontsize=24)
-    # plt.xlabel("iter per 100", fontsize=14)
-    # plt.ylabel("acc val", fontsize=14)
+    # 设置图表标题，并给坐标轴加上标签
+    plt.title("val_precision", fontsize=24)
+    plt.xlabel("iter per 100", fontsize=14)
+    plt.ylabel("acc val", fontsize=14)
 
-    # # 设置刻度标记的大小
-    # plt.tick_params(axis='both', labelsize=14)
-    # plt.savefig("./image/split{}".format(split))
+    # 设置刻度标记的大小
+    plt.tick_params(axis='both', labelsize=14)
+    if cfg.FRAME_13_OPEN:
+        plt.savefig("./image/13_frames")
+    else:
+        plt.savefig("./image/8_frames_split{}".format(split))
