@@ -39,8 +39,18 @@ def Normalize_13(sample):
     return {'images': images, 'labels': labels}
 
 
-def Normalize_T_13(sample):
+def Normalize_T_13(sample, flag):
     images, labels = sample['images'], sample['labels']
+    nImages = []
+    # if flag:
+    #     for image in images:
+    #         if isinstance(image, np.ndarray):
+    #             pass
+    #         else:
+    #             image = image.numpy()
+    #         nImages.append(image)
+    #     images = np.asarray(nImages)
+    #     images = images.transpose((0, 2, 3, 1))
     images = np.asarray(images)
     images = images.astype(np.float32)
     labels = np.asarray(labels)
@@ -67,6 +77,12 @@ class GolfDB_13(Dataset):
                                                  transforms.RandomAffine(
                                                      5, shear=5),
                                                  transforms.ToTensor()])
+        # if self.dataloader_opt == cfg.DATALOADER_OPT.OPTICAL_FLOW:
+        #     self.transform = transforms.Compose([transforms.ToPILImage(),
+        #                                          transforms.RandomHorizontalFlip(
+        #                                              0.5),
+        #                                          transforms.ToTensor()])
+
         self.train = train
         self.json_files = []
         for file in os.listdir(self.json_dir):
@@ -136,8 +152,6 @@ class GolfDB_13(Dataset):
                         opticalFileName = osp.join(
                             opticalFileFolder, '{:0>4d}.jpg'.format(pos))
                         opticalArray = cv2.imread(opticalFileName)
-                        if self.transform:
-                            opticalArray = self.transform(opticalArray)
                         images.append(opticalArray)
                         pos_adj = pos - 1
                         if pos_adj in events_list[0:-1]:
@@ -146,7 +160,7 @@ class GolfDB_13(Dataset):
                         else:
                             labels.append(13)
                 sample = {'images': images, 'labels': np.asarray(labels)}
-                sample = Normalize_T_13(sample)
+                sample = Normalize_T_13(sample, self.train)
                 return sample
 
             if self.dataloader_opt == cfg.DATALOADER_OPT.RGB:
