@@ -17,6 +17,7 @@ from google.colab.patches import cv2_imshow
 import numpy as np
 import detectron2
 from detectron2.utils.logger import setup_logger
+import json
 setup_logger()
 # import some common libraries
 
@@ -32,17 +33,28 @@ cfg.MODEL.ROI_KEYPOINT_HEAD.NUM_KEYPOINTS = 2  # only have 2 point head and tail
 predictor = DefaultPredictor(cfg)
 
 if __name__ == '__main__':
-    img_dirs = data.config.cfg.TEST_IMGS_DIR
+    img_dirs = "/home/zqr/data/golfdb_frame_no_resize"
+    if data.config.cfg.TEST_FLAG:
+        img_dirs = data.config.cfg.TEST_IMGS_DIR
     for img_dir in os.listdir(img_dirs):
         bbox_info_path = os.path.join(
-            data.config.cfg.TEST_BBOX_INFO_PATH, img_dir)
+            "/home/zqr/data/golfdb_keypoints/club_keypoints/bbox", img_dir)
         club_keypoints_path = os.path.join(
-            data.config.cfg.TEST_CLUB_KEYPOINTS_PATH, img_dir)
+            "/home/zqr/data/golfdb_keypoints/club_keypoints/result", img_dir)
+        if data.config.cfg.TEST_FLAG:
+            bbox_info_path = os.path.join(
+                data.config.cfg.TEST_BBOX_INFO_PATH, img_dir)
+            club_keypoints_path = os.path.join(
+                data.config.cfg.TEST_CLUB_KEYPOINTS_PATH, img_dir)
+
         if not os.path.exists(bbox_info_path):
             os.mkdir(bbox_info_path)
         if not os.path.exists(club_keypoints_path):
             os.mkdir(club_keypoints_path)
         img_dir_abs_path = os.path.join(img_dirs, img_dir)
+        total_bbox = []
+        all_keypoints = []
+        flag = True
         for img in os.listdir(img_dir_abs_path):
             img_abs_path = os.path.join(img_dir_abs_path, img)
             img_path = os.path.join(img_dir_abs_path, img)
@@ -51,13 +63,35 @@ if __name__ == '__main__':
             instances = outputs["instances"]
             scores = instances.get("scores")
             if len(scores):
+                keypoints_info = {}
                 max_score_idx = scores.argmax().item()
                 max_instance = instances.__getitem__(max_score_idx)
-                bbox = max_instance.get("pred_boxes").tensor[0].tolist()
+                bbox = max_instance.get(
+                    "pred_boxes").tensor[0].tolist()  # bbox 格式是x1y1x2y2
+                if flag:
+                    total_bbox = bbox
+                    flag = False
+                else:
+                    if total_bbox[0] > bbox[0]:
+                        total_bbox[0] > bbox[0]
+                    if total_bbox[1] > bbox[1]:
+                        total_bbox[1] > bbox[1]
+                    if total_bbox[2] > bbox[2]:
+                        total_bbox[2] > bbox[2]
+                    if total_bbox[3] > bbox[3]:
+                        total_bbox[3] > bbox[3]
+
                 keypoints = torch.squeeze(
                     max_instance.get("pred_keypoints")).tolist()
-                with open(os.path.join(club_keypoints_path, "club_keypoints.txt"), 'a') as f:
-                    f.write(img_abs_path+":"+str(keypoints)+"\n")
+                keypoints_info["image_id"] = img_dir + "/" + img
+                keypoints_info["keypoints"] = keypoints
+                all_keypoints.append(keypoints_info)
+
                 with open(os.path.join(bbox_info_path, "bbox.txt"), 'a') as f:
                     f.write(img_abs_path + ":" + str(bbox) + "\n")
+        with open(os.path.join(bbox_info_path, "total_bbox.txt"), 'w') as f:
+            f.write(img_dir_abs_path + ":" + str(total_bbox) + "\n")
+        with open(os.path.join(club_keypoints_path, "club_keypoints.json"), "w") as f:
+            json.dump(all_keypoints, f)
+
     print("get info ok")
