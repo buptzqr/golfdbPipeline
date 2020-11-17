@@ -10,11 +10,11 @@ present_dir_path = "/home/zqr/data/test/present"
 
 
 def visualize(img, joints, score=None):
-    keypoint_num = 19
+    keypoint_num = 20
     pairs = [[16, 14], [14, 12], [17, 15], [15, 13], [12, 13], [6, 12],
              [7, 13], [6, 7], [6, 8], [7, 9], [8, 10], [9, 11], [2, 3],
-             [1, 2], [1, 3], [2, 4], [3, 5], [4, 6], [5, 7], [10, 19], [11, 19], [18, 19]]
-    # 鼻子，左眼，右眼，左耳，右耳，左肩，右肩，左肘，右肘，左腕，右腕，左臀，右臀，左膝，右膝，左踝，右踝，杆头，杆尾
+             [1, 2], [1, 3], [2, 4], [3, 5], [4, 6], [5, 7], [10, 19], [11, 19], [18, 19], [20, 6], [20, 7]]
+    # 鼻子，左眼，右眼，左耳，右耳，左肩，右肩，左肘，右肘，左腕，右腕，左臀，右臀，左膝，右膝，左踝，右踝，杆头，杆尾,两肩中点
     color = np.random.randint(0, 256, (keypoint_num, 3)).tolist()
     joints_array = np.ones((keypoint_num, 2), dtype=np.float32)
     for i in range(keypoint_num):

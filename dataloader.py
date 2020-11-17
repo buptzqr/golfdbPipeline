@@ -48,6 +48,7 @@ class GolfDB(Dataset):
 
     def __getitem__(self, idx):
         a = self.df.loc[idx, :]  # annotation info
+        # 这样做是因为处理后的1400视频就是截取的events范围内的视频
         events = a['events']
         # now frame #s correspond to frames in preprocessed video clips
         events -= events[0]
