@@ -73,13 +73,13 @@ if __name__ == '__main__':
                     flag = False
                 else:
                     if total_bbox[0] > bbox[0]:
-                        total_bbox[0] > bbox[0]
+                        total_bbox[0] = bbox[0]
                     if total_bbox[1] > bbox[1]:
-                        total_bbox[1] > bbox[1]
-                    if total_bbox[2] > bbox[2]:
-                        total_bbox[2] > bbox[2]
-                    if total_bbox[3] > bbox[3]:
-                        total_bbox[3] > bbox[3]
+                        total_bbox[1] = bbox[1]
+                    if total_bbox[2] < bbox[2]:
+                        total_bbox[2] = bbox[2]
+                    if total_bbox[3] < bbox[3]:
+                        total_bbox[3] = bbox[3]
 
                 keypoints = torch.squeeze(
                     max_instance.get("pred_keypoints")).tolist()
