@@ -1,4 +1,6 @@
 # 得到每张图片包括球杆在内的bbox和球杆关键点
+# 每个文件夹下的bbox.txt存储的是每张图片包括杆在内bbox
+# total_bbox存储的是总体的bbox
 from detectron2.utils.visualizer import ColorMode
 import torch
 import random
@@ -31,12 +33,37 @@ cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.8   # set a custom testing threshold
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (club)
 cfg.MODEL.ROI_KEYPOINT_HEAD.NUM_KEYPOINTS = 2  # only have 2 point head and tail
 predictor = DefaultPredictor(cfg)
+GOLFDB_PKL_PATH = "/home/zqr/codes/MyGolfDB/data/golfDB.pkl"
+df = pd.read_pickle(GOLFDB_PKL_PATH)
+
+
+def if_intersect(*detect_bbox):
+    d_x1 = detect_bbox[0]
+    d_y1 = detect_bbox[1]
+    d_x2 = detect_bbox[2]+detect_bbox[0]
+    d_y2 = detect_bbox[3]+detect_bbox[1]
+    g_x1 = detect_bbox[4]
+    g_y1 = detect_bbox[5]
+    g_x2 = detect_bbox[6]+detect_bbox[4]
+    g_y2 = detect_bbox[7]+detect_bbox[5]
+    f_x1 = max(d_x1, g_x1)
+    f_y1 = max(d_y1, g_y1)
+    f_x2 = min(d_x2, g_x2)
+    f_y2 = min(d_y2, g_y2)
+    if f_x1 < f_x2 and f_y1 < f_y2:
+        return True
+    else:
+        return False
+
 
 if __name__ == '__main__':
     img_dirs = "/home/zqr/data/golfdb_frame_no_resize"
     if data.config.cfg.TEST_FLAG:
         img_dirs = data.config.cfg.TEST_IMGS_DIR
     for img_dir in os.listdir(img_dirs):
+        if not data.config.cfg.TEST_FLAG:
+            golfdb_bbox = df.iloc[int(img_dir)]["bbox"]
+        print("begin process dir {}".format(img_dir))
         bbox_info_path = os.path.join(
             "/home/zqr/data/golfdb_keypoints/club_keypoints/bbox", img_dir)
         club_keypoints_path = os.path.join(
@@ -59,6 +86,17 @@ if __name__ == '__main__':
             img_abs_path = os.path.join(img_dir_abs_path, img)
             img_path = os.path.join(img_dir_abs_path, img)
             im = cv2.imread(img_path)
+            if not data.config.cfg.TEST_FLAG:
+                if flag:
+                    img_width = im.shape[1]
+                    img_height = im.shape[0]
+                    x1 = int(img_width * golfdb_bbox[0])
+                    y1 = int(img_height * golfdb_bbox[1])
+                    w = int(img_width * golfdb_bbox[2])
+                    h = int(img_height * golfdb_bbox[3])
+                    x2 = x1 + w
+                    y2 = y1 + h
+            im = im[y1:y2, x1:x2]
             outputs = predictor(im)
             instances = outputs["instances"]
             scores = instances.get("scores")
@@ -93,5 +131,6 @@ if __name__ == '__main__':
             f.write(img_dir_abs_path + ":" + str(total_bbox) + "\n")
         with open(os.path.join(club_keypoints_path, "club_keypoints.json"), "w") as f:
             json.dump(all_keypoints, f)
+        print("finish process dir {}".format(img_dir))
 
     print("get info ok")
