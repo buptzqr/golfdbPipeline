@@ -12,14 +12,14 @@ class Config:
     BBOX_CLUB_POINTS_MODEL_PATH = "/home/zqr/codes/MyGolfDB/model_final.pth"
     INPUT_DIM = 160
     SPLIT = 4  # 保证eval和train是同一个split
-    ITERATIONS = 500
-    IT_SAVE = 100
+    ITERATIONS = 20000
+    IT_SAVE = 10
     SEQUENCE_LENGTH = 64
     CPU_NUM = 6
-    BATCH_SIZE = 20
+    BATCH_SIZE = 5
     PKL_FILE_PATH = "./data/train_split_{}.pkl".format(SPLIT)
     OUR_PKL_FILE_PATH = "./data/golfDB.pkl"
-    FRAME_13_OPEN = True
+    FRAME_13_OPEN = False
     #############################################################################
     # test config #
     RESIZE_DIM = 360
@@ -31,9 +31,13 @@ class Config:
     # 存放提取好的关键点信息(包括球杆和人)的位置
     TEST_KEYPOINTS_PATH = "/home/zqr/data/test/test_keypoints"
     TEST_CLUB_KEYPOINTS_PATH = "/home/zqr/data/test/test_club_keypoints"  # 存放提取好的球杆关键点
-    OPT_RESIZE_FLAG = True
+    OPT_RESIZE_FLAG = True  # 是否resize光流图
     TEST_RESULT_PATH = "/home/zqr/data/test/result"
-    TEST_MODEL = "./models/swingnet_100.pth.tar"
+    TEST_MODEL = "/home/zqr/data/models/optical/8/swingnet_700.pth.tar"
+    TEST_FLAG = True
+    TEST_JSON_PATH = "/home/zqr/data/test/test_json"
+    # 后评价8帧还是13帧(如果要评价8帧的话，记得要把FRAME_13_OPEN改为False,TEST_MODEL也要相应更改)
+    POST_EVAL_8 = True
 
     class DATALOADER_OPT(Enum):
         RGB = 0
