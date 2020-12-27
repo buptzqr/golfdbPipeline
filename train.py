@@ -9,6 +9,7 @@ import os
 from torch.utils.tensorboard import SummaryWriter
 from myeval import myeval
 from data.config import cfg
+import torch.nn as nn
 
 
 if __name__ == '__main__':
@@ -31,6 +32,8 @@ if __name__ == '__main__':
     freeze_layers(k, model)
     model.train()
     model.cuda()
+    model = nn.DataParallel(model)
+    
     # 用来训练非光流部分
     # dataset = GolfDB(data_file='data/train_split_{}.pkl'.format(split),
     #                  vid_dir='data/videos_160/',

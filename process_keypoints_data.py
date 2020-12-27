@@ -1,15 +1,18 @@
 import os
 import json
+from data.config import cfg
 # 这个脚本是为了整合人体关键点数据和球杆关键点数据
 if __name__ == '__main__':
+    # 合成st-gcn时用
     human_keypoints_path = "/home/zqr/data/golfdb_keypoints/human_keypoints/result"
     golf_club_keypoints_path = "/home/zqr/data/golfdb_keypoints/club_keypoints/result"
     total_keypoints_path = "/home/zqr/data/golfdb_keypoints/all_keypoints"
 
     # test时用
-    # human_keypoints_path = "/home/zqr/data/test/test_keypoints/keypoints_result"
-    # golf_club_keypoints_path = "/home/zqr/data/test/test_club_keypoints"
-    # total_keypoints_path = "/home/zqr/data/test/total_keypoints"
+    if cfg.TEST_FLAG:
+        human_keypoints_path = "/home/zqr/data/test/test_keypoints/keypoints_result"
+        golf_club_keypoints_path = "/home/zqr/data/test/test_club_keypoints"
+        total_keypoints_path = "/home/zqr/data/test/total_keypoints"
     for folder in os.listdir(human_keypoints_path):
         human_kp_abs_path = os.path.join(
             human_keypoints_path, folder, "results.json")

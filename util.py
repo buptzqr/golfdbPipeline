@@ -37,7 +37,7 @@ def correct_preds(probs, labels, tol=-1):
     if tol == -1:
         tol = int(max(np.round((events[5] - events[0]) / 30), 1))
         if cfg.FRAME_13_OPEN:
-            tol = int(max(np.round((events[10] - events[0]) / 30), 1))
+            tol = int(max(np.round((events[8] - events[0]) / 30), 1))
     for i in range(len(events)):
         preds[i] = np.argsort(probs[:, i])[-1]
     deltas = np.abs(events-preds)

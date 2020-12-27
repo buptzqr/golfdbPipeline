@@ -122,7 +122,7 @@ if __name__ == '__main__':
                                                    transforms.RandomAffine(
                                                        5, shear=5),
                                                    transforms.ToTensor()]),
-                     train=False,
+                     train=True,
                      myMean=myMean,
                      myStd=myStd)
 

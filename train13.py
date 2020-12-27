@@ -70,10 +70,10 @@ if __name__ == '__main__':
             if i % it_save == 0:
                 torch.save({'optimizer_state_dict': optimizer.state_dict(),
                             'model_state_dict': model.state_dict()}, 'models/swingnet_{}.pth.tar'.format(i))
-            if i == 100:
+            if i == 300:
                 for p in optimizer.param_groups:
                     p['lr'] *= 0.1
-            if i == 200:
+            if i == 400:
                 for p in optimizer.param_groups:
                     p['lr'] *= 0.1
             if i == iterations:

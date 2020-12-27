@@ -1,10 +1,17 @@
 import os
 import json
 from enum import Enum
+from data.config import cfg
 # 给已经处理好关键点文件添加肩部的中点（一个新关键点）
 # 这个脚本写的一般，这种覆盖式的处理虽然节省了空间，但是将原始点信息搞混乱了
-total_keypoints_path = "/home/zqr/data/test/total_keypoints"
-# total_keypoints_path = "/home/zqr/data/golfdb_keypoints/all_keypoints"
+total_keypoints_path = "/home/zqr/data/golfdb_keypoints/add_keypoints"
+all_keypoints_path = "/home/zqr/data/golfdb_keypoints/all_keypoints"
+# total_keypoints_path = "/home/zqr/data/golfdb_keypoints/human_keypoints/add"
+# all_keypoints_path = "/home/zqr/data/golfdb_keypoints/human_keypoints/add"
+
+if cfg.TEST_FLAG:
+    total_keypoints_path = "/home/zqr/data/test/total_keypoints"
+
 # 头，左右肩，左右肘，左右腕,左右髋，左右膝，左右踝
 P = [0.0706, 0.1374, 0.1374, 0.029, 0.029, 0.018,
      0.018, 0.1587, 0.1587, 0.0816, 0.0816, 0.03, 0.03]
@@ -18,9 +25,10 @@ class GRAVITY_CAL_OPT(Enum):
 GRAVITY_OPT = GRAVITY_CAL_OPT.COEFFICIENT
 
 if __name__ == '__main__':
-    for json_file in os.listdir(total_keypoints_path):
+    for json_file in os.listdir(all_keypoints_path):
         print("process file:{}".format(json_file))
-        json_file_abs_path = os.path.join(total_keypoints_path, json_file)
+        json_file_abs_path = os.path.join(all_keypoints_path, json_file)
+        add_json_abs_path = os.path.join(total_keypoints_path, json_file)
         with open(json_file_abs_path, 'r') as f:
             keypoints_list = json.load(f)
             point_num = 17
@@ -63,26 +71,35 @@ if __name__ == '__main__':
             gravity_point_x = all_points_x
             gravity_point_y = all_points_y
             gravity_point_score = all_points_score
-            # 移除肩部中点
-            elem["keypoints"].pop()
-            elem["keypoints"].pop()
-            elem["keypoints"].pop()
+
             # 添加重心
             elem["keypoints"].append(gravity_point_x)
             elem["keypoints"].append(gravity_point_y)
             elem["keypoints"].append(gravity_point_score)
 
             # 计算肩部的中点
-            # should_mid_x = (elem["keypoints"][3 * 5 + 0] +
-            #                 elem["keypoints"][3 * 6 + 0]) / 2
-            # should_mid_y = (elem["keypoints"][3 * 5 + 1] +
-            #                 elem["keypoints"][3 * 6 + 1]) / 2
-            # should_mid_score = (
-            #     elem["keypoints"][3 * 5 + 2] + elem["keypoints"][3 * 6 + 2]) / 2
-            # elem["keypoints"].append(should_mid_x)
-            # elem["keypoints"].append(should_mid_y)
-            # elem["keypoints"].append(should_mid_score)
-        with open(json_file_abs_path, 'w') as f:
+            should_mid_x = (elem["keypoints"][3 * 5 + 0] +
+                            elem["keypoints"][3 * 6 + 0]) / 2
+            should_mid_y = (elem["keypoints"][3 * 5 + 1] +
+                            elem["keypoints"][3 * 6 + 1]) / 2
+            should_mid_score = (
+                elem["keypoints"][3 * 5 + 2] + elem["keypoints"][3 * 6 + 2]) / 2
+            elem["keypoints"].append(should_mid_x)
+            elem["keypoints"].append(should_mid_y)
+            elem["keypoints"].append(should_mid_score)
+
+            # 计算髋部的中点
+            hip_mid_x = (elem["keypoints"][3 * 11 + 0] +
+                         elem["keypoints"][3 * 12 + 0]) / 2
+            hip_mid_y = (elem["keypoints"][3 * 11 + 1] +
+                         elem["keypoints"][3 * 12 + 1]) / 2
+            hip_mid_score = (
+                elem["keypoints"][3 * 11 + 2] + elem["keypoints"][3 * 12 + 2]) / 2
+            elem["keypoints"].append(hip_mid_x)
+            elem["keypoints"].append(hip_mid_y)
+            elem["keypoints"].append(hip_mid_score)
+
+        with open(add_json_abs_path, 'w') as f:
             json.dump(keypoints_list, f)
         print("finished file:{}".format(json_file))
         print("************************************************************************************************")

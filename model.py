@@ -30,9 +30,9 @@ class EventDetector(nn.Module):
                 self.lin = nn.Linear(2*self.lstm_hidden, 9)
         else:
             if cfg.FRAME_13_OPEN:
-                self.lin = nn.Linear(2*self.lstm_hidden, 14)
+                self.lin = nn.Linear(self.lstm_hidden, 14)
             else:
-                self.lin = nn.Linear(2*self.lstm_hidden, 9)
+                self.lin = nn.Linear(self.lstm_hidden, 9)
         if self.dropout:
             self.drop = nn.Dropout(0.5)
 

@@ -11,7 +11,7 @@ from data.config import cfg
 import os
 
 
-def eval(model, split, seq_length, n_cpu, disp):
+def eval(model, seq_length, n_cpu, disp):
 
     # # 光流部分
     dataset = GolfDB_DIS_OPT()
@@ -22,7 +22,6 @@ def eval(model, split, seq_length, n_cpu, disp):
                              num_workers=n_cpu,
                              drop_last=False)
 
-    correct = []
     preds_collect = {}
 
     for i, sample in enumerate(data_loader):
@@ -43,15 +42,18 @@ def eval(model, split, seq_length, n_cpu, disp):
                 probs = np.append(probs, F.softmax(
                     logits.data, dim=1).cpu().numpy(), 0)
             batch += 1
-        for idx in range(14):
-            preds.append(np.argsort(probs[:, idx])[-1])
+        if cfg.POST_EVAL_8:
+            for idx in range(9):
+                preds.append(np.argsort(probs[:, idx])[-1])
+        else:
+            for idx in range(14):
+                preds.append(np.argsort(probs[:, idx])[-1])
         preds_collect[labels[0, 0].item()] = preds
     return preds_collect
 
 
 if __name__ == '__main__':
 
-    split = cfg.SPLIT
     seq_length = cfg.SEQUENCE_LENGTH
     n_cpu = cfg.CPU_NUM
 
@@ -65,14 +67,22 @@ if __name__ == '__main__':
     model.load_state_dict(save_dict['model_state_dict'])
     model.cuda()
     model.eval()
-    preds = eval(model, split, seq_length, n_cpu, True)
+    preds = eval(model, seq_length, n_cpu, True)
     print(preds)
     for k, v in preds.items():
         src_path = os.path.join(cfg.TEST_IMGS_DIR, str(k))
         dst_path = os.path.join(cfg.TEST_RESULT_PATH, str(k))
         if not os.path.exists(dst_path):
             os.mkdir(dst_path)
-        for i in range(13):
-            src_img = os.path.join(src_path, "{:0>4d}.jpg".format(v[i]))
-            dst_img = os.path.join(dst_path, "{:0>4d}_{}.jpg".format(i, v[i]))
-            os.system("cp {} {}".format(src_img, dst_img))
+        if cfg.POST_EVAL_8:
+            for i in range(8):
+                src_img = os.path.join(src_path, "{:0>4d}.jpg".format(v[i]))
+                dst_img = os.path.join(
+                    dst_path, "{:0>4d}_{}.jpg".format(i, v[i]))
+                os.system("cp {} {}".format(src_img, dst_img))
+        else:
+            for i in range(13):
+                src_img = os.path.join(src_path, "{:0>4d}.jpg".format(v[i]))
+                dst_img = os.path.join(
+                    dst_path, "{:0>4d}_{}.jpg".format(i, v[i]))
+                os.system("cp {} {}".format(src_img, dst_img))

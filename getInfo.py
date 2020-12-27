@@ -76,8 +76,11 @@ if __name__ == '__main__':
 
         if not os.path.exists(bbox_info_path):
             os.mkdir(bbox_info_path)
+        else:
+            continue
         if not os.path.exists(club_keypoints_path):
             os.mkdir(club_keypoints_path)
+
         img_dir_abs_path = os.path.join(img_dirs, img_dir)
         total_bbox = []
         all_keypoints = []
@@ -87,6 +90,7 @@ if __name__ == '__main__':
             img_path = os.path.join(img_dir_abs_path, img)
             im = cv2.imread(img_path)
             if not data.config.cfg.TEST_FLAG:
+                # 这样做是因为数据集存在两个连着的人挥杆的情况，测试情况下不需要
                 if flag:
                     img_width = im.shape[1]
                     img_height = im.shape[0]
@@ -96,7 +100,7 @@ if __name__ == '__main__':
                     h = int(img_height * golfdb_bbox[3])
                     x2 = x1 + w
                     y2 = y1 + h
-            im = im[y1:y2, x1:x2]
+                im = im[y1:y2, x1:x2]
             outputs = predictor(im)
             instances = outputs["instances"]
             scores = instances.get("scores")
@@ -106,6 +110,12 @@ if __name__ == '__main__':
                 max_instance = instances.__getitem__(max_score_idx)
                 bbox = max_instance.get(
                     "pred_boxes").tensor[0].tolist()  # bbox 格式是x1y1x2y2
+                if not data.config.cfg.TEST_FLAG:
+                    # 因为只截取了一部分图片作为输入，所以需要将他预测的坐标还原回全局
+                    bbox[0] += x1
+                    bbox[1] += y1
+                    bbox[2] += x1
+                    bbox[3] += y1
                 if flag:
                     total_bbox = bbox
                     flag = False
@@ -121,6 +131,12 @@ if __name__ == '__main__':
 
                 keypoints = torch.squeeze(
                     max_instance.get("pred_keypoints")).tolist()
+                if not data.config.cfg.TEST_FLAG:
+                    # 关键点也得还原
+                    keypoints[0][0] += x1
+                    keypoints[0][1] += y1
+                    keypoints[1][0] += x1
+                    keypoints[1][1] += y1
                 keypoints_info["image_id"] = img_dir + "/" + img
                 keypoints_info["keypoints"] = keypoints
                 all_keypoints.append(keypoints_info)

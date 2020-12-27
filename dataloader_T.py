@@ -110,13 +110,14 @@ if __name__ == '__main__':
     dataset = GolfDB_T(data_file='data/train_split_1.pkl',
                        vid_dir='/home/zqr/data/optical/opticalFlowOri_160',
                        seq_length=64,
-                       train=False)
+                       train=True)
 
     data_loader = DataLoader(dataset, batch_size=1,
                              shuffle=False, num_workers=6, drop_last=False)
-
+    count = 0
     for i, sample in enumerate(data_loader):
         images, labels = sample['images'], sample['labels']
-        print(labels)
+        # print(labels)
         events = np.where(labels.squeeze() < 8)[0]
-        print('{} events: {}'.format(len(events), events))
+        count += 1
+        print('{}-{} events: {}'.format(count, len(events), events))
