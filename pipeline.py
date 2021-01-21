@@ -49,12 +49,12 @@ if __name__ == '__main__':
     print("检测候选框，球杆关键点，流程完成")
 
     # # step3: MSPN 检测人体关键点（候选框是人体候选框，目前主要是根据bbox大小来判断筛选出击球人）
-    # os.chdir("/home/zqr/codes/MSPN/exps/mspn.2xstg.coco")
-    # runStatus = os.system('python3 present.py')
-    # if runStatus != 0:
-    #     print("检测人体关键点流程错误")
-    #     sys.exit(2)
-    # print("检测人体关键点流程完成")
+    os.chdir("/home/zqr/codes/MSPN/exps/mspn.2xstg.coco")
+    runStatus = os.system('python3 present.py')
+    if runStatus != 0:
+        print("检测人体关键点流程错误")
+        sys.exit(2)
+    print("检测人体关键点流程完成")
 
     # # # step4:整合关键点
     # os.chdir("/home/zqr/codes/MyGolfDB")
@@ -63,8 +63,6 @@ if __name__ == '__main__':
     #     print("整合关键点流程错误")
     #     sys.exit(2)
     # print("整合关键点流程完成")
-
-    # # step3:检测
 
     # # step3: 根据bbox 将图片重构为dim×dim(这一步待定吧)
     # os.chdir("/home/zqr/codes/MyGolfDB")
