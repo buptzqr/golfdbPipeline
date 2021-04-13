@@ -1,5 +1,4 @@
 import sys
-sys.path.append("..")
 from dataloader_2_stream import GolfDB_2_stream
 from model_2_stream import EventDetector
 from util import *
@@ -15,10 +14,9 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
 # summary = [0, 0, 0, 0, 0, 0, 0, 0]  #统计各个关键帧检测出错的数目
-
 def myeval(model, split, seq_length, n_cpu, disp, stream_choice=0):
     videosNum = 0  # 统计验证集的视频数量
-    dataset = GolfDB_2_Stream(data_file='../data/val_split_{}.pkl'.format(split),
+    dataset = GolfDB_2_stream(data_file='../data/val_split_{}.pkl'.format(split),
                               vid_dir=cfg.OPT_RESIZE_FILE_PATH,
                               seq_length=seq_length,
                               train=False)
@@ -38,6 +36,8 @@ def myeval(model, split, seq_length, n_cpu, disp, stream_choice=0):
         videosNum += 1
         # print(videosNum)
         images, opt_images, labels = sample['images'], sample['opt_images'], sample['labels']
+        # print(images.size())
+        # print(opt_images.size())
         # full samples do not fit into GPU memory so evaluate sample in 'seq_length' batches
         batch = 0
         while batch * seq_length < images.shape[1]:
@@ -50,7 +50,6 @@ def myeval(model, split, seq_length, n_cpu, disp, stream_choice=0):
                 opt_images_batch = opt_images[:, batch *
                                      seq_length: (batch + 1) * seq_length,:,:,: ]
             # print(image_batch.shape)
-            # print(keypoints_batch.shape)   
             logits = model(image_batch.cuda(),opt_images_batch.cuda())
             if batch == 0:
                 probs = F.softmax(logits.data, dim=1).cpu().numpy()
@@ -100,15 +99,15 @@ if __name__ == '__main__':
                           dropout=False)
     PCES = {}
     vNum = 0
-    for i in range(1, 3):
-        index = i*10
+    for i in range(90, 200):
+        index = i*100
         print('swingnet_{}.pth.tar'.format(index))
         save_dict = torch.load('./models/swingnet_{}.pth.tar'.format(index))
         model.load_state_dict(save_dict['model_state_dict'])
         model.cuda()
         model.eval()
         PCE, vNum, _, _, _ = myeval(
-            model, split, seq_length, n_cpu, False, 0)
+            model, split, seq_length, n_cpu, True, 0)
         print("{}:{}".format(i,PCE))
         PCES[index] = PCE
     if cfg.FRAME_13_OPEN:

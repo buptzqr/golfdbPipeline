@@ -32,11 +32,11 @@ if __name__ == '__main__':
     freeze_layers(k, model)
     model.train()
     model.cuda()
-    model = nn.DataParallel(model)
+    # model = nn.DataParallel(model)
     
     # 用来训练非光流部分
-    # dataset = GolfDB(data_file='data/train_split_{}.pkl'.format(split),
-    #                  vid_dir='data/videos_160/',
+    # dataset = GolfDB(data_file='./data/train_split_{}.pkl'.format(split),
+    #                  vid_dir='/home/zqr/data/videos_160/',
     #                  seq_length=seq_length,
     #                  transform=transforms.Compose([transforms.ToPILImage(),
     #                     transforms.RandomHorizontalFlip(0.5),

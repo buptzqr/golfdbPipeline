@@ -24,7 +24,7 @@ def myeval(model, split, seq_length, n_cpu, disp, stream_choice=0):
                             seq_length=64,
                             train=False)
     else:
-        if stream_choice == 1:  # 默认使用光流分支
+        if stream_choice == 1:
             # 评价非光流法
             dataset = GolfDB(data_file='/home/zqr/codes/GolfDB/data/val_split_{}.pkl'.format(split),
                              vid_dir=cfg.VIDEO_160_PATH,
@@ -92,9 +92,10 @@ def myeval(model, split, seq_length, n_cpu, disp, stream_choice=0):
             print("preds:")
             print(preds)
         correct.append(c)
+    PFCR = np.mean(correct,axis=0)
     PCE = np.mean(correct)
     # summaryFile.close()
-    return PCE, videosNum, all_probs, all_tols, all_events
+    return PCE, videosNum, all_probs, all_tols, all_events,PFCR
 
 
 if __name__ == '__main__':
@@ -109,26 +110,36 @@ if __name__ == '__main__':
                           lstm_hidden=256,
                           bidirectional=True,
                           dropout=False)
+    # model = torch.nn.parallel.DataParallel(model)
     PCES = {}
     vNum = 0
-    for i in range(1, 6):
+    for i in range(1, 2):
         index = i*100
         print('swingnet_{}.pth.tar'.format(index))
-        save_dict = torch.load('./models/swingnet_{}.pth.tar'.format(index))
-        model.load_state_dict(save_dict['model_state_dict'])
+        save_dict = torch.load('/home/zqr/data/models/optical/13/swingnet_{}.pth.tar'.format(index))
+        new_state_dict = save_dict['model_state_dict']
+        # from collections import OrderedDict
+        # new_state_dict = OrderedDict()
+        # for k, v in save_dict['model_state_dict'].items():
+        #     name = k[7:] # remove `module.`
+        #     new_state_dict[name] = v
+        model.load_state_dict(new_state_dict)
         model.cuda()
         model.eval()
-        PCE, vNum, _, _, _ = myeval(
+        PCE, vNum, _, _, _ ,PFCR= myeval(
             model, split, seq_length, n_cpu, True, 0)
         PCES[index] = PCE
     if cfg.FRAME_13_OPEN:
         print("13 frames")
         print('Average PCE: {}'.format(PCES))
         print("video file num:{}".format(vNum))
+        print("per frame correct ratio:{}".format(PFCR))
     else:
         print("8 frames")
         print('split:{}  Average PCE: {}'.format(split, PCES))
         print("video file num:{}".format(vNum))
+        print("per frame correct ratio:{}".format(PFCR))
+
     # print("summary:{}".format(summary))
 
     # # 绘图

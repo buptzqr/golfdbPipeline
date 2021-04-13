@@ -52,7 +52,7 @@ class GolfDB_2_stream(Dataset):
                 img_dir="/home/zqr/data/videos_160", img_transform = transforms.Compose([transforms.ToPILImage(),
                                                    transforms.RandomHorizontalFlip(
                                                        0.5),
-                                                   transforms.RandomAffine(
+                                                    transforms.RandomAffine(
                                                        5, shear=5),
                                                    transforms.ToTensor()]),
                                                     myMean = [0.485, 0.456, 0.406],
@@ -61,7 +61,7 @@ class GolfDB_2_stream(Dataset):
         self.df = pd.read_pickle(data_file)
         self.vid_dir = vid_dir
         self.seq_length = seq_length
-        self.transform = transform
+        self.transform = None
         self.train = train
         self.img_transform = img_transform
         self.img_dir = img_dir
@@ -125,6 +125,7 @@ class GolfDB_2_stream(Dataset):
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 transImg = np.asarray(img)
                 images.append(transImg)
+            images = images[:-1]
             cap.release()
             # full clip
             # get files num

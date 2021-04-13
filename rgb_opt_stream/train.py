@@ -31,7 +31,7 @@ if __name__ == '__main__':
     
     model.train()
 
-    model = nn.DataParallel(model)
+    # model = nn.DataParallel(model)
     model.cuda()
     dataset = GolfDB_2_stream(data_file='../data/train_split_{}.pkl'.format(split),
                               vid_dir=cfg.OPT_RESIZE_FILE_PATH,
@@ -76,17 +76,14 @@ if __name__ == '__main__':
                 i, loss=losses))
             i += 1
             if i % it_save == 0:
-                for itm in model.state_dict():
-                    print(itm[0])
+                # for itm in model.state_dict():
+                #     print(itm[0])
                 torch.save({'optimizer_state_dict': optimizer.state_dict(),
                             'model_state_dict': model.state_dict()}, './models/swingnet_{}.pth.tar'.format(i))
-            if i == 1000:
+            if i == 4000:
                 for p in optimizer.param_groups:
                     p['lr'] *= 0.1
-            if i == 2000:
-                for p in optimizer.param_groups:
-                    p['lr'] *= 0.1
-            if i == 10000:
+            if i == 6000:
                 for p in optimizer.param_groups:
                     p['lr'] *= 0.1
             if i == iterations:

@@ -76,12 +76,16 @@ class EventDetector_OPT(nn.Module):
         c_in = x.view(batch_size * timesteps, C, H, W)
         c_out = self.cnn(c_in)
         c_out = c_out.mean(3).mean(2)
-        if self.dropout:
-            c_out = self.drop(c_out)
+        # 如果是在lstm之前融合，我直接把dropout放在concat之后了
+        # if self.dropout:
+        #     c_out = self.drop(c_out)
         
         # LSTM forward
         r_in = c_out.view(batch_size, timesteps, -1)
-        r_out, states = self.rnn(r_in, self.hidden)
-
+        # 在lstm之前融合
+        r_out = r_in
+        # 在lstm之后融合
+        # r_out, states = self.rnn(r_in, self.hidden)
+        
         return r_out
         

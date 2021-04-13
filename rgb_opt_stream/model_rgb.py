@@ -76,12 +76,15 @@ class EventDetector_RGB(nn.Module):
             c_out = self.cnn(c_in)
             c_out = c_out.mean(3).mean(2)
             
-            if self.dropout:
-                c_out = self.drop(c_out)
+            # if self.dropout:
+            #     c_out = self.drop(c_out)
             
             # LSTM forward
             r_in = c_out.view(batch_size, timesteps, -1)
-            r_out, states = self.rnn(r_in, self.hidden)
+            r_out = r_in
+            # print("rgb shape")
+            # print(r_out.shape)  
+            # r_out, states = self.rnn(r_in, self.hidden)
 
             return r_out
         
