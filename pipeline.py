@@ -83,6 +83,7 @@ if __name__ == '__main__':
     print("光流法提取特征完成")
 
     # step5: 提取关键帧(具体的路径都已经在disply_dataloader里面配置好了，直接使用就可以了)
+    # 13帧
     os.chdir("/home/zqr/codes/MyGolfDB")
     runStatus = os.system(
         'python3 disply.py')
@@ -90,3 +91,12 @@ if __name__ == '__main__':
         print("关键帧提取错误")
         sys.exit(1)
     print("关键帧提取完成")
+    # 8帧
+    
+    
+    # step6:后处理功能
+    
+    # step7:在提取的关键帧图片上加关键点
+    
+    # step8:动作评价
+

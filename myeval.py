@@ -94,6 +94,8 @@ def myeval(model, split, seq_length, n_cpu, disp, stream_choice=0):
         correct.append(c)
     PFCR = np.mean(correct,axis=0)
     PCE = np.mean(correct)
+    print("PCE:")
+    print(PCE)
     # summaryFile.close()
     return PCE, videosNum, all_probs, all_tols, all_events,PFCR
 
@@ -112,11 +114,12 @@ if __name__ == '__main__':
                           dropout=False)
     # model = torch.nn.parallel.DataParallel(model)
     PCES = {}
+    PFCRS = {}
     vNum = 0
-    for i in range(1, 2):
+    for i in range(99, 100):
         index = i*100
         print('swingnet_{}.pth.tar'.format(index))
-        save_dict = torch.load('/home/zqr/data/models/optical/13/swingnet_{}.pth.tar'.format(index))
+        save_dict = torch.load('./models/swingnet_{}.pth.tar'.format(index))
         new_state_dict = save_dict['model_state_dict']
         # from collections import OrderedDict
         # new_state_dict = OrderedDict()
@@ -127,13 +130,14 @@ if __name__ == '__main__':
         model.cuda()
         model.eval()
         PCE, vNum, _, _, _ ,PFCR= myeval(
-            model, split, seq_length, n_cpu, True, 0)
+            model, split, seq_length, n_cpu, False, 0)
         PCES[index] = PCE
+        PFCRS[index] = PFCR
     if cfg.FRAME_13_OPEN:
         print("13 frames")
         print('Average PCE: {}'.format(PCES))
         print("video file num:{}".format(vNum))
-        print("per frame correct ratio:{}".format(PFCR))
+        print("per frame correct ratio:{}".format(PFCRS))
     else:
         print("8 frames")
         print('split:{}  Average PCE: {}'.format(split, PCES))

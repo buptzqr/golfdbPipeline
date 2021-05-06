@@ -46,7 +46,7 @@ def eval(model, seq_length, n_cpu, disp):
             for idx in range(9):
                 preds.append(np.argsort(probs[:, idx])[-1])
         else:
-            for idx in range(14):
+            for idx in range(13):
                 preds.append(np.argsort(probs[:, idx])[-1])
         preds_collect[labels[0, 0].item()] = preds
     return preds_collect
