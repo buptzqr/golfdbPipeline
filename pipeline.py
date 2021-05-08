@@ -1,5 +1,6 @@
 import sys
 import os
+from data.config import Config
 from data.config import cfg
 # 不要删除/home/zqr/data/test/下的目录
 if __name__ == '__main__':
@@ -53,7 +54,7 @@ if __name__ == '__main__':
     runStatus = os.system('python3 present.py')
     if runStatus != 0:
         print("检测人体关键点流程错误")
-        sys.exit(2)
+        sys.exit(3)
     print("检测人体关键点流程完成")
 
     # # # step4:整合关键点
@@ -79,24 +80,42 @@ if __name__ == '__main__':
         cfg.TEST_IMGS_DIR, cfg.TEST_OPT_DIR, cfg.OPT_RESIZE_FLAG, cfg.TEST_BBOX_INFO_PATH))
     if runStatus != 0:
         print("光流法提取特征错误")
-        sys.exit(1)
+        sys.exit(4)
     print("光流法提取特征完成")
 
     # step5: 提取关键帧(具体的路径都已经在disply_dataloader里面配置好了，直接使用就可以了)
-    # 13帧
+    # 8帧
     os.chdir("/home/zqr/codes/MyGolfDB")
     runStatus = os.system(
-        'python3 disply.py')
+        'python3 disply.py {}'.format(True))
     if runStatus != 0:
-        print("关键帧提取错误")
-        sys.exit(1)
-    print("关键帧提取完成")
-    # 8帧
+        print("关键帧8帧提取错误")
+        sys.exit(5)
+    print("关键帧8帧提取完成")
     
+    # 13帧
+    runStatus = os.system(
+        'python3 disply.py {}'.format(False))
+    if runStatus != 0:
+        print("关键帧13帧提取错误")
+        sys.exit(5)
+    print("关键帧13帧提取完成")
+    
+    runStatus = os.system('python3 merge_result.py')
+    if runStatus != 0:
+        print("关键帧13帧提取错误")
+        sys.exit(5)
+    print("关键帧13帧提取完成")
     
     # step6:后处理功能
     
-    # step7:在提取的关键帧图片上加关键点
     
+    # step7:在提取的关键帧图片上加关键点
+    runStatus = os.system('python3 visualize.py')
+    if runStatus != 0:
+        print("关键帧13帧提取错误")
+        sys.exit(7)
+    print("关键帧13帧提取完成")
+
     # step8:动作评价
 

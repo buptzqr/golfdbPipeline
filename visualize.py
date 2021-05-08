@@ -17,11 +17,6 @@ def visualize(keypoint_num, img, joints, score=None):
             joints_array[i, 1] = joints[i * 3 + 1]
             # joints_array[i, 2] = joints[i * 3 + 2]
 
-        for i in range(keypoint_num):
-            if joints_array[i, 0] > 0 and joints_array[i, 1] > 0:
-                cv2.circle(img, tuple(
-                    joints_array[i, :2]), 2, tuple(color[i]), 2)
-
         def draw_line(img, p1, p2):
             c = (0, 0, 255)
             if p1[0] > 0 and p1[1] > 0 and p2[0] > 0 and p2[1] > 0:
@@ -30,6 +25,11 @@ def visualize(keypoint_num, img, joints, score=None):
         for pair in pairs:
             draw_line(img, joints_array[pair[0] - 1],
                       joints_array[pair[1] - 1])
+
+        for i in range(keypoint_num):
+            if joints_array[i, 0] > 0 and joints_array[i, 1] > 0:
+                cv2.circle(img, tuple(
+                    joints_array[i, :2]), 2, (0,255,0), 2)
 
         return img
 

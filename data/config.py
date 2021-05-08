@@ -33,13 +33,18 @@ class Config:
     TEST_CLUB_KEYPOINTS_PATH = "/home/zqr/data/test/test_club_keypoints"  # 存放提取好的球杆关键点
     OPT_RESIZE_FLAG = True  # 是否resize光流图
     TEST_RESULT_PATH = "/home/zqr/data/test/result"
-    TEST_MODEL = "/home/zqr/data/models/optical/13/swingnet_9600.pth.tar"
+    TEST_RESULT_TMP = "/home/zqr/data/test/score_result" #存放8帧和13帧关键帧检测结果
+    TEST_MODEL_13 = "/home/zqr/data/models/optical/13/swingnet_9600.pth.tar"
+    TEST_MODEL_8 = "/home/zqr/data/models/optical/8/swingnet_700.pth.tar"
     TEST_FLAG = True
     TEST_JSON_PATH = "/home/zqr/data/test/test_json"
     TEST_RESULT_WITH_KEYPONTS = "/home/zqr/data/test/result_with_keypoints"
+    TEST_SCORES_DIR = "/home/zqr/data/test/scores" # 存放8帧和13帧检测的各帧得分
     # 后评价8帧还是13帧(如果要评价8帧的话，记得要把FRAME_13_OPEN改为False,TEST_MODEL也要相应更改)
     POST_EVAL_8 = False
-
+    def set_8_flag(self,flag):
+        Config.POST_EVAL_8 = flag
+        Config.FRAME_13_OPEN = not flag
     class DATALOADER_OPT(Enum):
         RGB = 0
         OPTICAL_FLOW = 1
