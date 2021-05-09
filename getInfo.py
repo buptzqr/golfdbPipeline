@@ -60,7 +60,10 @@ if __name__ == '__main__':
     img_dirs = "/home/zqr/data/golfdb_frame_no_resize"
     if data.config.cfg.TEST_FLAG:
         img_dirs = data.config.cfg.TEST_IMGS_DIR
-    for img_dir in os.listdir(img_dirs):
+    img_dirs = []
+    for dir_name in os.listdir(data.config.cfg.TEST_VIDEO_PAHT):
+        img_dirs.append(dir_name.split('.')[0])
+    for img_dir in img_dirs:
         if not data.config.cfg.TEST_FLAG:
             golfdb_bbox = df.iloc[int(img_dir)]["bbox"]
         print("begin process dir {}".format(img_dir))
