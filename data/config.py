@@ -10,6 +10,7 @@ class Config:
     TRAIN_JSON_PATH = "/home/zqr/data/golfdb_json/train"
     VAL_JSON_PATH = "/home/zqr/data/golfdb_json/val"
     BBOX_CLUB_POINTS_MODEL_PATH = "/home/zqr/codes/MyGolfDB/model_final.pth"
+    IMG_FRAME_PATH = "/home/zqr/data/golfdb_frame_no_resize"
     INPUT_DIM = 160
     SPLIT = 4  # 保证eval和train是同一个split
     ITERATIONS = 10000

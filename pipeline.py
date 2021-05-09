@@ -103,9 +103,9 @@ if __name__ == '__main__':
     
     runStatus = os.system('python3 merge_result.py')
     if runStatus != 0:
-        print("关键帧13帧提取错误")
+        print("merge错误")
         sys.exit(5)
-    print("关键帧13帧提取完成")
+    print("merge完成")
     
     # step6:后处理功能
     
@@ -113,9 +113,9 @@ if __name__ == '__main__':
     # step7:在提取的关键帧图片上加关键点
     runStatus = os.system('python3 visualize.py')
     if runStatus != 0:
-        print("关键帧13帧提取错误")
+        print("13帧关键点错误")
         sys.exit(7)
-    print("关键帧13帧提取完成")
+    print("13帧关键点完成")
 
     # step8:动作评价
 

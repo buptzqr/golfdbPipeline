@@ -3,6 +3,8 @@ import numpy as np
 import json
 from data.config import cfg
 import os
+
+import shutil
 def visualize(keypoint_num, img, joints, score=None):
         pairs = [[16, 14], [14, 12], [17, 15], [15, 13], [12, 13], [6, 12],
                  [7, 13], [6, 7], [6, 8], [7, 9], [8, 10], [9, 11], [2, 3],
@@ -35,8 +37,15 @@ def visualize(keypoint_num, img, joints, score=None):
 
 if __name__ == '__main__':
     for dir_name in os.listdir(cfg.TEST_RESULT_PATH):
+        img_only_keypoints = "/home/zqr/data/test/result_only_keypoints"
+        img_only_keypoints = os.path.join(img_only_keypoints,dir_name)
         img_with_keypoints = os.path.join(cfg.TEST_RESULT_WITH_KEYPONTS,dir_name)
-        if not os.path.exists(img_with_keypoints):
+        
+        if os.path.exists(img_only_keypoints):
+            shutil.rmtree(img_only_keypoints)
+            os.makedirs(img_only_keypoints)
+        if os.path.exists(img_with_keypoints):
+            shutil.rmtree(img_with_keypoints)
             os.makedirs(img_with_keypoints)
         for img_name in os.listdir(os.path.join(cfg.TEST_RESULT_PATH,dir_name)):
             ori_img_name = img_name
@@ -64,3 +73,7 @@ if __name__ == '__main__':
                     cfg.TEST_RESULT_PATH, dir_name,ori_img_name), cv2.IMREAD_COLOR)
             img = visualize(19,data_numpy,all_keypoints)
             cv2.imwrite(os.path.join(img_with_keypoints, ori_img_name), img)
+            # 老王还要只有关键点的图片
+            img_backgroud = visualize(19,np.zeros(img.shape,np.uint8),all_keypoints)
+            cv2.imwrite(os.path.join(img_only_keypoints, ori_img_name), img_backgroud)
+             
