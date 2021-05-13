@@ -76,8 +76,8 @@ if __name__ == '__main__':
     # step4: 光流法提取特征(flag是用来打开resize开关的，dim需要在光流proj的config里面配置一下，这样做的话就是在原图提光流特征，然后resize)
     # 这里没有完应该是根据bbox resize比较好吧
     os.chdir("/home/zqr/codes/pytorch-liteflownet")
-    runStatus = os.system('python3 run.py {} {} {} {}'.format(
-        cfg.TEST_IMGS_DIR, cfg.TEST_OPT_DIR, cfg.OPT_RESIZE_FLAG, cfg.TEST_BBOX_INFO_PATH))
+    runStatus = os.system('python3 run.py {} {} {} {} {}'.format(
+        cfg.TEST_IMGS_DIR, cfg.TEST_OPT_DIR, cfg.OPT_RESIZE_FLAG, cfg.TEST_BBOX_INFO_PATH,cfg.TEST_VIDEO_PAHT))
     if runStatus != 0:
         print("光流法提取特征错误")
         sys.exit(4)

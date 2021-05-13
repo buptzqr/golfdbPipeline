@@ -60,10 +60,10 @@ if __name__ == '__main__':
     img_dirs = "/home/zqr/data/golfdb_frame_no_resize"
     if data.config.cfg.TEST_FLAG:
         img_dirs = data.config.cfg.TEST_IMGS_DIR
-    img_dirs = []
+    dir_list = []
     for dir_name in os.listdir(data.config.cfg.TEST_VIDEO_PAHT):
-        img_dirs.append(dir_name.split('.')[0])
-    for img_dir in img_dirs:
+        dir_list.append(dir_name.split('.')[0])
+    for img_dir in dir_list:
         if not data.config.cfg.TEST_FLAG:
             golfdb_bbox = df.iloc[int(img_dir)]["bbox"]
         print("begin process dir {}".format(img_dir))
@@ -78,16 +78,19 @@ if __name__ == '__main__':
                 data.config.cfg.TEST_CLUB_KEYPOINTS_PATH, img_dir)
 
         if not os.path.exists(bbox_info_path):
-            os.mkdir(bbox_info_path)
-        else:
-            continue
+            os.makedirs(bbox_info_path)
+
         if not os.path.exists(club_keypoints_path):
-            os.mkdir(club_keypoints_path)
+            os.makedirs(club_keypoints_path)
 
         img_dir_abs_path = os.path.join(img_dirs, img_dir)
         total_bbox = []
         all_keypoints = []
         flag = True
+        
+        if os.path.exists(os.path.join(bbox_info_path, "bbox.txt")):
+            os.remove(os.path.join(bbox_info_path, "bbox.txt"))
+
         for img in os.listdir(img_dir_abs_path):
             img_abs_path = os.path.join(img_dir_abs_path, img)
             img_path = os.path.join(img_dir_abs_path, img)

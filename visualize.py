@@ -43,10 +43,10 @@ if __name__ == '__main__':
         
         if os.path.exists(img_only_keypoints):
             shutil.rmtree(img_only_keypoints)
-            os.makedirs(img_only_keypoints)
+        os.makedirs(img_only_keypoints)
         if os.path.exists(img_with_keypoints):
             shutil.rmtree(img_with_keypoints)
-            os.makedirs(img_with_keypoints)
+        os.makedirs(img_with_keypoints)
         for img_name in os.listdir(os.path.join(cfg.TEST_RESULT_PATH,dir_name)):
             ori_img_name = img_name
             img_name = int(img_name.split('_')[1].split('.')[0])
